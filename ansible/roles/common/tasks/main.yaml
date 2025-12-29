@@ -1,0 +1,31 @@
+---
+- name: Update apt cache
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Install common dependencies
+  apt:
+    name:
+      - curl
+      - ca-certificates
+      - nfs-common
+      - open-iscsi
+      - qemu-guest-agent
+    state: present
+
+- name: Start QEMU Guest Agent
+  service:
+    name: qemu-guest-agent
+    state: started
+    enabled: yes
+
+- name: Disable Swap (Temporary)
+  command: swapoff -a
+  changed_when: false
+
+- name: Disable Swap (Permanent)
+  replace:
+    path: /etc/fstab
+    regexp: '^([^#].*?\sswap\s+sw\s+.*)$'
+    replace: '# \1'

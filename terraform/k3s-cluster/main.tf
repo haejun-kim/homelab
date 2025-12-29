@@ -82,3 +82,12 @@ resource "proxmox_vm_qemu" "k3s_cluster" {
   sshkeys   = file(var.ssh_key_path)
   ciuser    = "ubuntu"
 }
+
+# Ansible - Inventory 파일 생성
+resource "local_file" "ansible_inventory" {
+  content = templatefile("${path.module}/templates/inventory.tftpl", {
+    vms = proxmox_vm_qemu.k3s_cluster
+    configs = var.vm_configs
+  })
+  filename = "../../ansible/inventory/terraform.yaml"
+}

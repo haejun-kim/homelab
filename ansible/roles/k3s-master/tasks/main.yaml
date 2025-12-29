@@ -1,0 +1,25 @@
+---
+- name: Install K3s Server
+  shell: curl -sfL https://get.k3s.io | sh -
+  environment:
+    # 설치 시 추가 옵션 (예: traefik 비활성화 등 필요 시 추가)
+    INSTALL_K3S_EXEC: "--disable traefik"
+  args:
+    creates: /usr/local/bin/k3s
+
+- name: Wait for node-token to be generated
+  wait_for:
+    path: /var/lib/rancher/k3s/server/node-token
+
+- name: Read K3s Node Token
+  slurp:
+    src: /var/lib/rancher/k3s/server/node-token
+  register: node_token_content
+
+- name: Store Token and IP as Facts
+  set_fact:
+    k3s_token: "{{ node_token_content['content'] | b64decode | trim }}"
+    k3s_master_ip: "{{ ansible_host }}"
+  # dummy host에 저장하여 worker들이 접근 가능하게 함
+  delegate_to: localhost
+  delegate_facts: true

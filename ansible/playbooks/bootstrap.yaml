@@ -1,0 +1,6 @@
+---
+- name: Bootstrap System Requirements
+  hosts: all
+  become: true
+  roles:
+    - common

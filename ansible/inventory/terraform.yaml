@@ -1,0 +1,27 @@
+all:
+  children:
+    k3s_cluster:
+      children:
+        k3s_master:
+          hosts:
+            k3s-master01:
+              ansible_host: 172.30.1.105
+              ansible_user: ubuntu
+              ansible_ssh_private_key_file: "~/.ssh/id_rsa"
+        k3s_worker:
+          hosts:
+            k3s-worker01:
+              ansible_host: 172.30.1.106
+              ansible_user: ubuntu
+              ansible_ssh_private_key_file: "~/.ssh/id_rsa"
+              # GPU 노드 식별을 위한 변수 주입
+              node_labels:
+                - "node-type=worker"
+            k3s-worker02-gpu:
+              ansible_host: 172.30.1.107
+              ansible_user: ubuntu
+              ansible_ssh_private_key_file: "~/.ssh/id_rsa"
+              # GPU 노드 식별을 위한 변수 주입
+              node_labels:
+                - "gpu=true"
+                - "accelerator=nvidia"
