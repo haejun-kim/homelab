@@ -10,6 +10,12 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Terraform Apply
+        env:
+          TF_VAR_proxmox_api_url: ${{ secrets.TF_VAR_proxmox_api_url }}
+          TF_VAR_proxmox_token_id: ${{ secrets.TF_VAR_proxmox_token_id }}
+          TF_VAR_proxmox_token_secret: ${{ secrets.TF_VAR_proxmox_token_secret }}
+          TF_VAR_ssh_key_path: ${{ secrets.TF_VAR_ssh_key_path }}
+          TF_VAR_vm_configs: ${{ secrets.TF_VAR_vm_configs }}
         run: |
           cd terraform/k3s-cluster
           terraform init
