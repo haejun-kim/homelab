@@ -19,7 +19,8 @@ jobs:
         run: |
           cd terraform/k3s-cluster
           terraform init
-          terraform apply -auto-approve
+          # github action test -> apply 미적용
+          terraform plan
 
       - name: Wait for SSH
         run: sleep 30
