@@ -91,3 +91,25 @@ resource "local_file" "ansible_inventory" {
   })
   filename = "../../ansible/inventory/terraform.yaml"
 }
+
+## local-exec
+# resource "null_resource" "run_ansible" {
+#   # 인벤토리 파일이 생성된 후에 실행되어야 함
+#   depends_on = [ local_file.ansible_inventory ]
+
+#   # 매번 apply 할 때마다 실행하려면 timestamp() 사용
+#   # VM 설정이 바뀔 때만 실행하려면 VM 리소스 참조
+#   triggers = {
+#     always_run = timestamp()
+#   }
+
+#   provisioner "local-exec" {
+#     command = <<EOT
+#       echo "Waiting for VMs to initialize..."
+#       sleep 30
+#       cd ../../ansible
+#       ansible-playbook playbooks/bootstrap.yaml
+#       ansible-playbook playbooks/k3s.yaml
+#     EOT
+#   }
+# }
