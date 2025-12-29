@@ -61,3 +61,7 @@
     replace: "{{ ansible_host }}"
   delegate_to: localhost
   become: false
+
+# helm and argocd install
+- import_tasks: helm.yaml
+- import_tasks: argocd.yaml

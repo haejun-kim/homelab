@@ -1,0 +1,17 @@
+---
+- name: add argo helm repo
+  command: helm repo add argo https://argoproj.github.io/argo-helm
+  args:
+    # if file exist > task skipped
+    creates: /root/.cache/helm/repository/argo-index.yaml
+
+- name: update helm repo
+  command: helm repo update
+
+- name: install argocd
+  command: >
+    helm upgrade --install argocd argo/argo-cd
+    --namespace argocd
+    --create-namespace
+  environment:
+    KUBECONFIG: /home/ubuntu/.kube/config
