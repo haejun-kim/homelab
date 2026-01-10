@@ -8,10 +8,17 @@
 - name: update helm repo
   command: helm repo update
 
+- name: copy argocd values
+  copy:
+    src: /home/ubuntu/homelab-iac/ansible/roles/k3s-master/files/argocd-values.yaml
+    dest: /tmp/argocd-values.yaml
+    mode: '0600'
+
 - name: install argocd
   command: >
     helm upgrade --install argocd argo/argo-cd
     --namespace argocd
     --create-namespace
+    --values /tmp/argocd-values.yaml
   environment:
     KUBECONFIG: /home/ubuntu/.kube/config
