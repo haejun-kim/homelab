@@ -21,7 +21,7 @@ resource "proxmox_vm_qemu" "k3s_cluster" {
   boot    = "order=scsi0;net0"
 
   machine = "q35"
-  balloon = 0
+  balloon = each.value.balloon
 
   network {
     id     = 0
@@ -68,9 +68,71 @@ resource "proxmox_vm_qemu" "k3s_cluster" {
       # datacenter > resource mappings > pci devices add (nvidia)
       # pvesh get /cluster/mapping/pci
       mapping_id = "nvidia-1060"
-      rombar    = true
-      pcie      = true
+      rombar     = true
+      pcie       = true
     }
+  }
+
+  serial {
+    id   = 0
+    type = "socket"
+  }
+
+  ipconfig0 = each.value.ipconfig
+  sshkeys   = file(var.ssh_key_path)
+  ciuser    = "ubuntu"
+}
+
+resource "proxmox_vm_qemu" "platform_vms" {
+  for_each = var.platform_vm_configs
+
+  name        = each.value.name
+  target_node = each.value.target_node
+  vmid        = each.value.vmid
+  clone       = each.value.clone
+  full_clone  = true
+  agent       = 1
+  description = each.value.description
+
+  cpu {
+    cores = each.value.cores
+    type  = "host"
+  }
+
+  memory = each.value.memory
+
+  os_type = "cloud-init"
+  bios    = "ovmf"
+  scsihw  = "virtio-scsi-single"
+  boot    = "order=scsi0;net0"
+
+  machine = "q35"
+  balloon = 0
+
+  network {
+    id     = 0
+    model  = "virtio"
+    bridge = "vmbr0"
+  }
+
+  efidisk {
+    efitype = "4m"
+    storage = "local-lvm"
+  }
+
+  disk {
+    slot    = "ide2"
+    type    = "cloudinit"
+    storage = "local-lvm"
+  }
+
+  disk {
+    slot     = "scsi0"
+    size     = "${each.value.root_disk_gb}G"
+    storage  = "local-lvm"
+    type     = "disk"
+    iothread = true
+    discard  = true
   }
 
   serial {
@@ -86,7 +148,7 @@ resource "proxmox_vm_qemu" "k3s_cluster" {
 # Ansible - Inventory 파일 생성
 resource "local_file" "ansible_inventory" {
   content = templatefile("${path.module}/templates/inventory.tftpl", {
-    vms = proxmox_vm_qemu.k3s_cluster
+    vms     = proxmox_vm_qemu.k3s_cluster
     configs = var.vm_configs
   })
   filename = "../../ansible/inventory/terraform.yaml"

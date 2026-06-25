@@ -28,8 +28,25 @@ variable "vm_configs" {
     target_node  = string
     cores        = number
     memory       = number
+    balloon      = optional(number, 0)
     ipconfig     = string
     gpu          = optional(bool, false)
     data_disk_gb = optional(number, 0)
   }))
+}
+
+variable "platform_vm_configs" {
+  description = "Non-k3s platform VM definitions"
+  type = map(object({
+    vmid         = number
+    name         = string
+    target_node  = string
+    cores        = number
+    memory       = number
+    root_disk_gb = number
+    ipconfig     = string
+    clone        = optional(string, "ubuntu-24.04-template-pve")
+    description  = optional(string, "Managed by Terraform.")
+  }))
+  default = {}
 }
